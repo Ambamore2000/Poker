@@ -33,13 +33,15 @@ def sort_array(cards_array):
 
     return A
 
+
 def get_counter(cards_array):
-    counter = [[0 for i in range(1)] for j in range(13)]
+    counter = [0 for i in range(13)]
     for card in cards_array:
         counter[card.value - 1] += 1
     return counter
 
-def check_high_card(cards_array):     # TODO: Check if necessary to consider if cards_array is empty.
+
+def check_high_card(cards_array):  # TODO: Check if necessary to consider if cards_array is empty.
     high_card_list = [cards_array[len(cards_array) - 1]]
 
     return high_card_list
@@ -48,18 +50,41 @@ def check_high_card(cards_array):     # TODO: Check if necessary to consider if 
 def check_one_pair(cards_array):
     one_pair_list = []
 
-    previous_card = None
-    for card in cards_array:
-        if previous_card is not None and card.value == previous_card.value:
-            one_pair_list.append(card)
-            one_pair_list.append(previous_card)
-            return one_pair_list
-        previous_card = card
+    counter_list = get_counter(cards_array)
+
+    for x, count in enumerate(counter_list):
+        if count == 2:
+            for card in cards_array:
+                if card.value == x + 1:
+                    one_pair_list.append(card)
 
     return one_pair_list
+    # one_pair_list = []
+    #
+    # previous_card = None
+    # for card in cards_array:
+    #     if previous_card is not None and card.value == previous_card.value:
+    #         one_pair_list.append(card)
+    #         one_pair_list.append(previous_card)
+    #         return one_pair_list
+    #     previous_card = card
+    #
+    # return one_pair_list
 
-def check_two_pair(cards_array):
-    return False
+
+def check_two_pair(cards_array):  # TODO Seems to be complicated in comparison to other checks.
+    # two_pair_list = []
+    #
+    #
+    # previous_card = None
+    # for card in cards_array:
+    #     if previous_card is not None and card.value == previous_card.value:
+    #         two_pair_list.append(card)
+    #         two_pair_list.append(previous_card)
+    #     previous_card = card
+    #
+    # return two_pair_list
+    pass
 
 
 def check_three_of_a_kind(cards_array):
