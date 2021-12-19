@@ -1,3 +1,4 @@
+from card import Card
 from deck import Deck
 from player import Player
 from poker_hand_ranking import check_poker_hand_ranking
@@ -35,6 +36,7 @@ if __name__ == '__main__':
 
     print_player_cards(players_array)
 
+    #board_array = [Card(13, 'S'), Card(10, 'S'), Card(11, 'S'), Card(1, 'S'), Card(12, 'S')]
     board_array = [deck.draw_card(), deck.draw_card(), deck.draw_card(), deck.draw_card(), deck.draw_card()]
 
     print_board_cards(board_array)
@@ -48,10 +50,7 @@ if __name__ == '__main__':
         board_and_player_cards.append(player.first_card)
         board_and_player_cards.append(player.second_card)
 
-        print_cards(board_and_player_cards)
-
         to_highlight = check_poker_hand_ranking(board_and_player_cards)
 
-        print("HAND WITH SHITS")
         print(to_highlight[0])
         print_cards(to_highlight[1])

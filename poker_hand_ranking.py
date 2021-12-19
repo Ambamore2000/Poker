@@ -1,5 +1,4 @@
 from enum import Enum
-from card import Card
 
 
 class PokerHandRanking(Enum):
@@ -15,34 +14,85 @@ class PokerHandRanking(Enum):
     ROYAL_FLUSH = 1
 
 
-def sort_array(cards_array):
-    A = cards_array.copy()
-
-    for i in range(len(A)):
-
-        # Find the minimum element in remaining
-        # unsorted array
-        min_idx = i
-        for j in range(i + 1, len(A)):
-            if A[min_idx].value > A[j].value:
-                min_idx = j
-
-        # Swap the found minimum element with
-        # the first element
-        A[i], A[min_idx] = A[min_idx], A[i]
-
-    return A
-
-
+# 0 = King, 1 = Queen, 2 = Jack,
+# 3 = Ten, 4 = Nine, 5 = Eight,
+# 6 = Seven, 7 = Six, 8 = Five,
+# 9 = Four, 10 = Three, 11 = Two,
+# 12 = Ace
 def get_counter(cards_array):
     counter = [0 for i in range(13)]
     for card in cards_array:
         counter[card.value - 1] += 1
+
+    counter.reverse()
     return counter
 
 
-def check_high_card(cards_array):  # TODO: Check if necessary to consider if cards_array is empty.
-    high_card_list = [cards_array[len(cards_array) - 1]]
+# 0 = Ace, 1 = King, 2 = Queen,
+# 3 = Jack, 4 = Ten, 5 = Nine,
+# 6 = Eight, 7 = Seven, 8 = Six,
+# 9 = Five, 10 = Four, 11 = Three,
+# 12 = Two
+def get_counter_ace_highest(cards_array):
+    A = get_counter(cards_array)
+
+    A.reverse()
+
+    A.append(A[0])
+    A.pop(0)
+
+    A.reverse()
+
+    return A
+
+
+def get_sorted_cards(cards_array):
+    A = cards_array.copy()
+
+    for i in range(len(A)):
+        min_idx = i
+
+        for j in range(i + 1, len(A)):
+            if A[min_idx].value > A[j].value:
+                min_idx = j
+
+        A[i], A[min_idx] = A[min_idx], A[i]
+
+    A.reverse()
+
+    return A
+
+
+def get_sorted_cards_ace_highest(cards_array):
+    A = get_sorted_cards(cards_array)
+
+    A.reverse()
+
+    one_counter = 0
+
+    for card in A:
+        if card.value == 1:
+            A.append(card)
+            one_counter += 1
+        else:
+            break
+
+    for x in range(one_counter):
+        A.pop(0)
+
+    A.reverse()
+
+    return A
+
+
+def check_high_card(cards_array):
+    high_card_list = []
+
+    cards_ace_highest_list = get_sorted_cards_ace_highest(cards_array)
+    for card in cards_ace_highest_list:
+        if len(high_card_list) == 5:
+            break
+        high_card_list.append(card)
 
     return high_card_list
 
@@ -50,98 +100,94 @@ def check_high_card(cards_array):  # TODO: Check if necessary to consider if car
 def check_one_pair(cards_array):
     one_pair_list = []
 
-    counter_list = get_counter(cards_array)
+    counter_ace_highest_list = get_counter_ace_highest(cards_array)
+    cards_ace_highest_list = get_sorted_cards_ace_highest(cards_array)
 
-    for x, count in enumerate(counter_list):
+    value_of_highest_pair = None
+    for x, count in enumerate(counter_ace_highest_list):
+        if x == 0:
+            value = 1
+        else:
+            value = 14 - x
         if count == 2:
-            for card in cards_array:
-                if card.value == x + 1:
-                    one_pair_list.append(card)
+            value_of_highest_pair = value
+            break
+
+    if value_of_highest_pair is not None:
+        for card in cards_ace_highest_list:
+            if len(one_pair_list) >= 2:
+                break
+            if card.value == value_of_highest_pair:
+                one_pair_list.append(card)
 
     return one_pair_list
-    # one_pair_list = []
-    #
-    # previous_card = None
-    # for card in cards_array:
-    #     if previous_card is not None and card.value == previous_card.value:
-    #         one_pair_list.append(card)
-    #         one_pair_list.append(previous_card)
-    #         return one_pair_list
-    #     previous_card = card
-    #
-    # return one_pair_list
 
 
-def check_two_pair(cards_array):  # TODO Seems to be complicated in comparison to other checks.
-    # two_pair_list = []
-    #
-    #
-    # previous_card = None
-    # for card in cards_array:
-    #     if previous_card is not None and card.value == previous_card.value:
-    #         two_pair_list.append(card)
-    #         two_pair_list.append(previous_card)
-    #     previous_card = card
-    #
-    # return two_pair_list
-    pass
+def check_two_pair(cards_array):
+    two_pair_list = []
+
+    counter_ace_highest_list = get_counter_ace_highest(cards_array)
+    cards_ace_highest_list = get_sorted_cards_ace_highest(cards_array)
+
+    values_of_highest_pair = []
+    for x, count in enumerate(counter_ace_highest_list):
+        if x == 0:
+            value = 1
+        else:
+            value = 14 - x
+        if count == 2:
+            values_of_highest_pair.append(value)
+            if len(values_of_highest_pair) >= 2:
+                break
+
+    if len(values_of_highest_pair) == 2:
+        for card in cards_ace_highest_list:
+            if len(two_pair_list) >= 4:
+                break
+            for values in values_of_highest_pair:
+                if card.value == values:
+                    two_pair_list.append(card)
+
+    return two_pair_list
 
 
 def check_three_of_a_kind(cards_array):
-    return False
+    pass
 
 
 def check_straight(cards_array):
-    return False
+    pass
 
 
 def check_flush(cards_array):
-    return False
+    pass
 
 
 def check_full_house(cards_array):
-    return False
+    pass
 
 
 def check_four_of_a_kind(cards_array):
-    return False
+    pass
 
 
 def check_straight_flush(cards_array):
-    return False
+    pass
 
 
 def check_royal_flush(cards_array):
-    return False
+    pass
 
 
 def check_poker_hand_ranking(cards):
-    sorted_cards = sort_array(cards)
 
-    check_high_card_list = check_high_card(sorted_cards)
-    check_one_pair_list = check_one_pair(sorted_cards)
+    check_two_pair_list = check_two_pair(cards)
+    check_one_pair_list = check_one_pair(cards)
+    check_high_card_list = check_high_card(cards)
 
-    if check_one_pair_list:
+    if check_two_pair_list:
+        return PokerHandRanking.TWO_PAIR, check_two_pair_list
+    elif check_one_pair_list:
         return PokerHandRanking.ONE_PAIR, check_one_pair_list
     elif check_high_card_list:
         return PokerHandRanking.HIGH_CARD, check_high_card_list
-    # if check_one_pair(cards):
-    #     return PokerHandRanking.ONE_PAIR
-    # elif check_two_pair(cards):
-    #     return PokerHandRanking.TWO_PAIR
-    # elif check_three_of_a_kind(cards):
-    #     return PokerHandRanking.THREE_OF_A_KIND
-    # elif check_straight(cards):
-    #     return PokerHandRanking.STRAIGHT
-    # elif check_flush(cards):
-    #     return PokerHandRanking.FLUSH
-    # elif check_full_house(cards):
-    #     return PokerHandRanking.FULL_HOUSE
-    # elif check_four_of_a_kind(cards):
-    #     return PokerHandRanking.FOUR_OF_A_KIND
-    # elif check_straight_flush(cards):
-    #     return PokerHandRanking.STRAIGHT_FLUSH
-    # elif check_royal_flush(cards):
-    #     return PokerHandRanking.ROYAL_FLUSH
-    # else:
-    #     return PokerHandRanking.HIGH_CARD
