@@ -115,10 +115,10 @@ def check_one_pair(cards_array):
 
     if value_of_highest_pair is not None:
         for card in cards_ace_highest_list:
-            if len(one_pair_list) >= 2:
-                break
             if card.value == value_of_highest_pair:
                 one_pair_list.append(card)
+                if len(one_pair_list) >= 2:
+                    break
 
     return one_pair_list
 
@@ -142,17 +142,39 @@ def check_two_pair(cards_array):
 
     if len(values_of_highest_pair) == 2:
         for card in cards_ace_highest_list:
-            if len(two_pair_list) >= 4:
-                break
             for values in values_of_highest_pair:
                 if card.value == values:
                     two_pair_list.append(card)
+                    if len(two_pair_list) >= 4:
+                        break
 
     return two_pair_list
 
 
 def check_three_of_a_kind(cards_array):
-    pass
+    three_of_a_kind_list = []
+
+    counter_ace_highest_list = get_counter_ace_highest(cards_array)
+    cards_ace_highest_list = get_sorted_cards_ace_highest(cards_array)
+
+    value_of_three_of_a_kind = None
+    for x, count in enumerate(counter_ace_highest_list):
+        if x == 0:
+            value = 1
+        else:
+            value = 14 - x
+        if count == 3:
+            value_of_three_of_a_kind = value
+            break
+
+    if value_of_three_of_a_kind is not None:
+        for card in cards_ace_highest_list:
+            if card.value == value_of_three_of_a_kind:
+                three_of_a_kind_list.append(card)
+                if len(three_of_a_kind_list) >= 3:
+                    break
+
+    return three_of_a_kind_list
 
 
 def check_straight(cards_array):
@@ -164,7 +186,16 @@ def check_flush(cards_array):
 
 
 def check_full_house(cards_array):
-    pass
+    full_house_list = []
+
+    three_of_a_kind_list = check_three_of_a_kind(cards_array)
+    one_pair_list = check_one_pair(cards_array)
+
+    if three_of_a_kind_list and one_pair_list:
+        full_house_list.extend(three_of_a_kind_list)
+        full_house_list.extend(one_pair_list)
+
+    return full_house_list
 
 
 def check_four_of_a_kind(cards_array):
@@ -181,11 +212,17 @@ def check_royal_flush(cards_array):
 
 def check_poker_hand_ranking(cards):
 
+    check_full_house_list = check_full_house(cards)
+    check_three_of_a_kind_list = check_three_of_a_kind(cards)
     check_two_pair_list = check_two_pair(cards)
     check_one_pair_list = check_one_pair(cards)
     check_high_card_list = check_high_card(cards)
 
-    if check_two_pair_list:
+    if check_full_house_list:
+        return PokerHandRanking.FULL_HOUSE, check_full_house_list
+    elif check_three_of_a_kind_list:
+        return PokerHandRanking.THREE_OF_A_KIND, check_three_of_a_kind_list
+    elif check_two_pair_list:
         return PokerHandRanking.TWO_PAIR, check_two_pair_list
     elif check_one_pair_list:
         return PokerHandRanking.ONE_PAIR, check_one_pair_list
