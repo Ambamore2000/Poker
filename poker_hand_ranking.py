@@ -14,6 +14,25 @@ class PokerHandRanking(Enum):
     ROYAL_FLUSH = 1
 
 
+# 0 = 'C', 1 = 'S'
+# 2 = 'H', 3 = 'D'
+def get_suit_counter(cards_array):
+    counter = [0 for i in range(4)]
+    for card in cards_array:
+        counter_index = None
+        if card.suit == 'C':
+            counter_index = 0
+        elif card.suit == 'S':
+            counter_index = 1
+        elif card.suit == 'H':
+            counter_index = 2
+        elif card.suit == 'D':
+            counter_index = 3
+        counter[counter_index] += 1
+
+    return counter
+
+
 # 0 = King, 1 = Queen, 2 = Jack,
 # 3 = Ten, 4 = Nine, 5 = Eight,
 # 6 = Seven, 7 = Six, 8 = Five,
@@ -177,12 +196,93 @@ def check_three_of_a_kind(cards_array):
     return three_of_a_kind_list
 
 
+def check_straight_ace_highest(cards_array):
+    counter_ace_highest_list = get_counter_ace_highest(cards_array)
+    cards_ace_highest_list = get_sorted_cards_ace_highest(cards_array)
+
+    straight_list = []
+
+    values_of_straight = []
+    previous_value = None
+    for x, count in enumerate(counter_ace_highest_list):
+        if x == 0:
+            value = 1
+        else:
+            value = 14 - x
+        if count >= 1:
+            values_of_straight.append(value)
+        else:
+            if len(values_of_straight) >= 5:
+                break
+            values_of_straight = []
+
+    if len(values_of_straight) >= 5:
+        for card in cards_ace_highest_list:
+            for value in values_of_straight:
+                if card.value == value:
+                    straight_list.append(card)
+
+    return straight_list
+
+
+def check_straight_not_ace_highest(cards_array):
+    counter_list = get_counter(cards_array)
+    cards_list = get_sorted_cards(cards_array)
+
+    straight_list = []
+
+    values_of_straight = []
+    for x, count in enumerate(counter_list):
+        value = 13 - x
+        if count >= 1:
+            values_of_straight.append(value)
+        else:
+            if len(values_of_straight) >= 5:
+                break
+            values_of_straight = []
+
+    if len(values_of_straight) >= 5:
+        for card in cards_list:
+            for value in values_of_straight:
+                if card.value == value:
+                    straight_list.append(card)
+
+    return straight_list
+
+
 def check_straight(cards_array):
-    pass
+    straight_list = check_straight_ace_highest(cards_array)
+
+    if not straight_list:
+        straight_list = check_straight_not_ace_highest(cards_array)
+
+    return straight_list
 
 
 def check_flush(cards_array):
-    pass
+    flush_list = []
+
+    suit_counter_list = get_suit_counter(cards_array)
+    sorted_cards_list = get_sorted_cards(cards_array)
+
+    value_of_flush = None
+    for x, count in enumerate(suit_counter_list):
+        if count >= 5:
+            if x == 0:
+                value_of_flush = 'C'
+            elif x == 1:
+                value_of_flush = 'S'
+            elif x == 2:
+                value_of_flush = 'H'
+            elif x == 3:
+                value_of_flush = 'D'
+
+    if value_of_flush is not None:
+        for card in sorted_cards_list:
+            if card.suit == value_of_flush:
+                flush_list.append(card)
+
+    return flush_list
 
 
 def check_full_house(cards_array):
@@ -199,11 +299,43 @@ def check_full_house(cards_array):
 
 
 def check_four_of_a_kind(cards_array):
-    pass
+    four_of_a_kind_list = []
+
+    counter_ace_highest_list = get_counter_ace_highest(cards_array)
+    cards_ace_highest_list = get_sorted_cards_ace_highest(cards_array)
+
+    value_of_four_of_a_kind = None
+    for x, count in enumerate(counter_ace_highest_list):
+        if x == 0:
+            value = 1
+        else:
+            value = 14 - x
+        if count == 4:
+            value_of_four_of_a_kind = value
+            break
+
+    if value_of_four_of_a_kind is not None:
+        for card in cards_ace_highest_list:
+            if card.value == value_of_four_of_a_kind:
+                four_of_a_kind_list.append(card)
+                if len(four_of_a_kind_list) >= 4:
+                    break
+
+    return four_of_a_kind_list
 
 
 def check_straight_flush(cards_array):
-    pass
+    straight_list = check_straight(cards_array)
+    flush_list = check_flush(cards_array)
+
+    print("STRAIGHT:")
+    for card in straight_list:
+        print(card.value, card.suit)
+    print("FLUSH:")
+    for card in flush_list:
+        print(card.value, card.suit)
+
+    return []
 
 
 def check_royal_flush(cards_array):
@@ -211,15 +343,29 @@ def check_royal_flush(cards_array):
 
 
 def check_poker_hand_ranking(cards):
-
+    check_royal_flush_list = check_royal_flush(cards)
+    check_straight_flush_list = check_straight_flush(cards)
+    check_four_of_a_kind_list = check_four_of_a_kind(cards)
     check_full_house_list = check_full_house(cards)
+    check_flush_list = check_flush(cards)
+    check_straight_list = check_straight(cards)
     check_three_of_a_kind_list = check_three_of_a_kind(cards)
     check_two_pair_list = check_two_pair(cards)
     check_one_pair_list = check_one_pair(cards)
     check_high_card_list = check_high_card(cards)
 
-    if check_full_house_list:
+    if check_royal_flush_list:
+        return PokerHandRanking.ROYAL_FLUSH, check_royal_flush_list
+    elif check_straight_flush_list:
+        return PokerHandRanking.STRAIGHT_FLUSH, check_straight_flush_list
+    elif check_four_of_a_kind_list:
+        return PokerHandRanking.FOUR_OF_A_KIND, check_four_of_a_kind_list
+    elif check_full_house_list:
         return PokerHandRanking.FULL_HOUSE, check_full_house_list
+    elif check_flush_list:
+        return PokerHandRanking.FLUSH, check_flush_list
+    elif check_straight_list:
+        return PokerHandRanking.STRAIGHT, check_straight_list
     elif check_three_of_a_kind_list:
         return PokerHandRanking.THREE_OF_A_KIND, check_three_of_a_kind_list
     elif check_two_pair_list:

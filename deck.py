@@ -60,7 +60,7 @@ class Deck:
         self.cards_array = [ace_of_clubs, two_of_clubs, three_of_clubs, four_of_clubs, five_of_clubs,
                             six_of_clubs, seven_of_clubs, eight_of_clubs, nine_of_clubs, ten_of_clubs,
                             jack_of_clubs, queen_of_clubs, king_of_clubs,
-                            ace_of_spades, two_of_spades, three_of_spades, four_of_spades, five_of_spades,
+                            #ace_of_spades, two_of_spades, three_of_spades, four_of_spades, five_of_spades,
                             six_of_spades, seven_of_spades, eight_of_spades, nine_of_spades, ten_of_spades,
                             jack_of_spades, queen_of_spades, king_of_spades,
                             ace_of_hearts, two_of_hearts, three_of_hearts, four_of_hearts, five_of_hearts,
